@@ -22,7 +22,7 @@ def analyze_state_wiki(state_name):
     soup = BeautifulSoup(response.content, 'html.parser')
     text = soup.get_text()
     words = nltk.word_tokenize(text)
-    frequent_words = Counter(words).most_common(10)  # Adjust the number as needed
+    frequent_words = Counter(words).most_common(10000)  # Adjust the number as needed
     return frequent_words
 
 def create_wordcloud(counter):
