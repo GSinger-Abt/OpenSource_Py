@@ -6,6 +6,7 @@ from PIL import Image
 import numpy as np
 import wikipediaapi
 import re
+import geopandas as gpd
 
 # Load GeoJSON from a URL or a local file path
 url = 'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
