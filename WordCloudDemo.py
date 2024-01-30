@@ -24,7 +24,7 @@ def determine_state_from_lat_lon(lat, lon):
     point = Point(lon, lat)
     for _, row in gdf.iterrows():
         if row['geometry'].contains(point):
-            return row['NAME']  # Assuming the column with state names is 'NAME'
+            return row['name']  # Assuming the column with state names is 'NAME'
     return "Unknown"
 
 # Example usage
