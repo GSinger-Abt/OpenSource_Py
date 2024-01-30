@@ -25,7 +25,6 @@ def analyze_state_wiki(state_name):
     return frequent_words
 
 # Streamlit App
-# Streamlit App
 def main():
     st.title('US States Word Frequency Analyzer')
 
