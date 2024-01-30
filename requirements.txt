@@ -1,0 +1,13 @@
+streamlit
+pandas
+tqdm
+geopandas
+folium
+ipywidgets
+IPython
+pybase64
+datetime
+scipy
+streamlit-folium
+plotly-express
+wordcloud
