@@ -37,28 +37,28 @@ def main():
 
     df = load_geojson('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json')
     
-    # # Create the Plotly map
-    # fig = px.choropleth(df, geojson=df['geometry'], locations=df.index, hover_name='state')
-    # fig.update_geos(fitbounds="locations")
-    # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    # Create the Plotly map
+    fig = px.choropleth(df, geojson=df['geometry'], locations=df.index, hover_name='state')
+    fig.update_geos(fitbounds="locations")
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
-    # # Display the map and capture click data
-    # click_data = st.plotly_chart(fig, use_container_width=True)
+    # Display the map and capture click data
+    click_data = st.plotly_chart(fig, use_container_width=True)
 
-    # # Handle state selection
-    # if click_data and click_data['points']:
-    #     selected_state = click_data['points'][0]['location']
-    #     if selected_state:
-    #         st.write(f"Selected State: {selected_state}")
-    #         frequent_words = analyze_state_wiki(selected_state)
-    #         st.write(f'Most Frequent Words in {selected_state} Wikipedia Page:')
-    #         # Generate word cloud
-    #         wordcloud = create_wordcloud(word_counts)
-    #         # Display word cloud using matplotlib
-    #         fig, ax = plt.subplots()
-    #         ax.imshow(wordcloud, interpolation='bilinear')
-    #         ax.axis("off")
-    #         st.pyplot(fig)
+    # Handle state selection
+    if click_data and click_data['points']:
+        selected_state = click_data['points'][0]['location']
+        if selected_state:
+            st.write(f"Selected State: {selected_state}")
+            frequent_words = analyze_state_wiki(selected_state)
+            st.write(f'Most Frequent Words in {selected_state} Wikipedia Page:')
+            # Generate word cloud
+            wordcloud = create_wordcloud(word_counts)
+            # Display word cloud using matplotlib
+            fig, ax = plt.subplots()
+            ax.imshow(wordcloud, interpolation='bilinear')
+            ax.axis("off")
+            st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
