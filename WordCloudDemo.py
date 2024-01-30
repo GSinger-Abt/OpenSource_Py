@@ -5,6 +5,7 @@ import requests
 import plotly.express as px
 from bs4 import BeautifulSoup
 from collections import Counter
+import matplotlib.pyplot as plt
 import nltk
 nltk.download('punkt')
 
@@ -23,6 +24,12 @@ def analyze_state_wiki(state_name):
     words = nltk.word_tokenize(text)
     frequent_words = Counter(words).most_common(10)  # Adjust the number as needed
     return frequent_words
+
+def create_wordcloud(counter):
+    wordcloud = WordCloud(width = 800, height = 800, 
+                background_color ='white', 
+                min_font_size = 10).generate_from_frequencies(counter)
+    return wordcloud
 
 # Streamlit App
 def main():
@@ -45,7 +52,13 @@ def main():
             st.write(f"Selected State: {selected_state}")
             frequent_words = analyze_state_wiki(selected_state)
             st.write(f'Most Frequent Words in {selected_state} Wikipedia Page:')
-            st.write(frequent_words)
+            # Generate word cloud
+            wordcloud = create_wordcloud(word_counts)
+            # Display word cloud using matplotlib
+            fig, ax = plt.subplots()
+            ax.imshow(wordcloud, interpolation='bilinear')
+            ax.axis("off")
+            st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
