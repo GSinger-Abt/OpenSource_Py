@@ -20,16 +20,16 @@ gdf = gpd.read_file(url)
 # Check the GeoDataFrame
 st.dataframe(gdf)
 
-def determine_state_from_lat_lon(lat, lon):
-    point = Point(lon, lat)
-    for _, row in gdf.iterrows():
-        if row['geometry'].contains(point):
-            return row['name']  # Assuming the column with state names is 'NAME'
-    return "Unknown"
+# def determine_state_from_lat_lon(lat, lon):
+#     point = Point(lon, lat)
+#     for _, row in gdf.iterrows():
+#         if row['geometry'].contains(point):
+#             return row['name']  # Assuming the column with state names is 'NAME'
+#     return "Unknown"
 
-# Example usage
-state = determine_state_from_lat_lon(40.7128, -74.0060)  # Example coordinates for New York
-st.text(state)
+# # Example usage
+# state = determine_state_from_lat_lon(40.7128, -74.0060)  # Example coordinates for New York
+# st.text(state)
 
 # # Function to fetch top words from Wikipedia
 # def get_top_words_from_wikipedia(state):
