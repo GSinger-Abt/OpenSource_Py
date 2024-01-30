@@ -12,3 +12,6 @@ streamlit-folium
 plotly-express
 wordcloud
 Wikipedia-API
+streamlit-folium
+beautifulsoup4
+nltk
