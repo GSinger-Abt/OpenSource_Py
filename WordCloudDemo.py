@@ -18,7 +18,7 @@ url = r'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/ge
 gdf = gpd.read_file(url)
 
 # Check the GeoDataFrame
-st.dateframe(gdf)
+st.dataframe(gdf)
 
 def determine_state_from_lat_lon(lat, lon):
     point = Point(lon, lat)
