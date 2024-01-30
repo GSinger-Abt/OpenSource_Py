@@ -1,59 +1,47 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
-from urllib.request import urlopen
-import json
+import folium
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+from PIL import Image
+import numpy as np
+import wikipediaapi
+import re
 
-st.set_page_config(
-    page_title='Word Cloud Demo.py',
-    page_icon="🗺️",
-    layout="wide",
-)
-st.title('Open Source Word Cloud Demo')
-st.subheader("Introduction:")
-st.markdown(
-    """
-    Testing
+# Function to fetch top words from Wikipedia
+def get_top_words_from_wikipedia(state):
+    wiki_wiki = wikipediaapi.Wikipedia('en')
+    page = wiki_wiki.page(state)
 
-    ---
+    # Extracting words and filtering
+    words = re.findall(r'\b\w+\b', page.text.lower())
+    return ' '.join(words[:10000])  # Limiting to top 10000 words
 
-    
-    """
-)
-
-# Load US states geojson
-with urlopen('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json') as response:
-    states = json.load(response)
-
-# Sample dataframe
-data = {
-    'State': ['CA', 'TX', 'NY', 'FL', 'IL'],
-    'Value': [100, 200, 300, 400, 500]
-}
-df = pd.DataFrame(data)
-
-# Function to return filtered dataframe
-def filter_data(selected_state):
-    return df[df['State'] == selected_state]
-
-# Plotly map
-fig = px.choropleth(df, geojson=states, locations='State', locationmode='USA-states', color='Value',
-                    scope="usa")
-fig.update_geos(fitbounds="locations")
+# Function to generate word cloud in the shape of the state
+def generate_state_word_cloud(words, state_mask):
+    mask = np.array(Image.open(state_mask))
+    wordcloud = WordCloud(width = 800, height = 400, background_color ='white', mask=mask, contour_width=1, contour_color='steelblue').generate(words)
+    plt.figure(figsize = (8, 8), facecolor = None) 
+    plt.imshow(wordcloud, interpolation="bilinear") 
+    plt.axis("off")
+    plt.tight_layout(pad = 0) 
+    plt.close()
+    return wordcloud.to_image()
 
 # Streamlit app
-st.title('US States Map Click Interaction')
+st.title('US States Interactive Map and Word Clouds')
 
-# Display map
-map_click = st.plotly_chart(fig, use_container_width=True)
+# Folium map setup
+m = folium.Map(location=[37.0902, -95.7129], zoom_start=4)
 
-# Get click data
-selected_data = map_click._click_data
-if selected_data:
-    selected_state = selected_data['points'][0]['location']
-    filtered_df = filter_data(selected_state)
-    st.write(f"Selected state: {selected_state}")
-    st.write(filtered_df)
-else:
-    st.write("Click on a state in the map")
+# Streamlit: Display map
+map_data = st_folium(m, width=700)
+
+# Check if a location is clicked on the map
+if map_data['last_clicked']:
+    lat, lon = map_data['last_clicked']
+    # You need a function to determine the state based on lat, lon
+    # state = determine_state_from_lat_lon(lat, lon)
+    state
+
+
 
