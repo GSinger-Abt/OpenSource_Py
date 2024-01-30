@@ -11,4 +11,4 @@ scipy
 streamlit-folium
 plotly-express
 wordcloud
-wikipedia-api
+Wikipedia-API
