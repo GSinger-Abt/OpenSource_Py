@@ -18,7 +18,7 @@ url = r'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/ge
 gdf = gpd.read_file(url)
 
 # Check the GeoDataFrame
-print(gdf.head())
+st.dateframe(gdf)
 
 def determine_state_from_lat_lon(lat, lon):
     point = Point(lon, lat)
@@ -29,7 +29,7 @@ def determine_state_from_lat_lon(lat, lon):
 
 # Example usage
 state = determine_state_from_lat_lon(40.7128, -74.0060)  # Example coordinates for New York
-print(state)
+st.text(state)
 
 # # Function to fetch top words from Wikipedia
 # def get_top_words_from_wikipedia(state):
