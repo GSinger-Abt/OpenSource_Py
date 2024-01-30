@@ -1,21 +1,11 @@
 import streamlit as st
-import folium
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
-from PIL import Image
-import numpy as np
-import wikipediaapi
-import re
 import geopandas as gpd
-from shapely.geometry import Point
-
 
 # Load GeoJSON from a URL or a local file path
 url = r'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
 gdf = gpd.read_file(url)
 # Check the GeoDataFrame
-st.dataframe(gdf)
-
+st.text(url)
 # def determine_state_from_lat_lon(lat, lon):
 #     point = Point(lon, lat)
 #     for _, row in gdf.iterrows():
