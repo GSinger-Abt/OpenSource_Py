@@ -25,6 +25,7 @@ def analyze_state_wiki(state_name):
     return frequent_words
 
 # Streamlit App
+# Streamlit App
 def main():
     st.title('US States Word Frequency Analyzer')
 
@@ -43,6 +44,11 @@ def main():
         selected_state = click_data['points'][0]['location']
         if selected_state:
             st.write(f"Selected State: {selected_state}")
-            frequent_words = analyze_state_w
+            frequent_words = analyze_state_wiki(selected_state)
+            st.write(f'Most Frequent Words in {selected_state} Wikipedia Page:')
+            st.write(frequent_words)
+
+if __name__ == "__main__":
+    main()
 
 
