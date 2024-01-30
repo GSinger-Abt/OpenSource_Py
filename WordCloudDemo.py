@@ -12,11 +12,7 @@ from shapely.geometry import Point
 
 # Load GeoJSON from a URL or a local file path
 url = r'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
-# For a local file, replace the URL with the file path
-# e.g., 'path_to_your_file/us_states.geojson'
-
 gdf = gpd.read_file(url)
-
 # Check the GeoDataFrame
 st.dataframe(gdf)
 
