@@ -1,9 +1,9 @@
 import streamlit as st
 import geopandas as gpd
-
+import requests
 # Load GeoJSON from a URL or a local file path
-url = r'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
-gdf = gpd.read_file(url)
+url = 'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
+gdf = gpd.read_file(requests.get(url))
 # Check the GeoDataFrame
 st.dataframe(gdf)
 # def determine_state_from_lat_lon(lat, lon):
