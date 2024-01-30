@@ -1,17 +1,20 @@
 import streamlit as st
+import pandas as pd
+import json
 import requests
-import folium
-from streamlit_folium import folium_static
+import plotly.express as px
 from bs4 import BeautifulSoup
 from collections import Counter
 import nltk
 nltk.download('punkt')
 
-# Function to load GeoJSON data
+# Load GeoJSON and convert to DataFrame
 def load_geojson(url):
-    return requests.get(url).json()
+    data = requests.get(url).json()
+    states = [feature['properties']['name'] for feature in data['features']]
+    return pd.DataFrame({'state': states, 'geometry': data['features']})
 
-# Function to scrape Wikipedia and analyze text
+# Scrape Wikipedia and analyze text
 def analyze_state_wiki(state_name):
     wiki_url = f'https://en.wikipedia.org/wiki/{state_name}_State'
     response = requests.get(wiki_url)
@@ -24,24 +27,22 @@ def analyze_state_wiki(state_name):
 # Streamlit App
 def main():
     st.title('US States Word Frequency Analyzer')
+
+    df = load_geojson('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json')
     
-    # Load and display the map for state selection
-    geojson_data = load_geojson('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json')
-    
-    # Creating the map (Example with folium - You may need to adjust it based on your exact requirements)
-    m = folium.Map(location=[48, -102], zoom_start=3)
-    folium.GeoJson(geojson_data).add_to(m)
-    folium_static(m)
+    # Create the Plotly map
+    fig = px.choropleth(df, geojson=df['geometry'], locations=df.index, hover_name='state')
+    fig.update_geos(fitbounds="locations")
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
-    # Input for state name (You might want to replace this with a more sophisticated state selection method)
-    state_name = st.text_input('Enter a State Name')
+    # Display the map and capture click data
+    click_data = st.plotly_chart(fig, use_container_width=True)
 
-    if state_name:
-        frequent_words = analyze_state_wiki(state_name)
-        st.write(f'Most Frequent Words in {state_name} Wikipedia Page:')
-        st.write(frequent_words)
-
-if __name__ == "__main__":
-    main()
+    # Handle state selection
+    if click_data and click_data['points']:
+        selected_state = click_data['points'][0]['location']
+        if selected_state:
+            st.write(f"Selected State: {selected_state}")
+            frequent_words = analyze_state_w
 
 
