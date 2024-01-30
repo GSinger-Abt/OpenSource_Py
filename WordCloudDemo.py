@@ -5,7 +5,7 @@ import requests
 url = 'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
 gdf = gpd.read_file(url)
 # Check the GeoDataFrame
-st.dataframe(gdf)
+st.dataframe(gdf.drop(columns=['geometry'])
 # def determine_state_from_lat_lon(lat, lon):
 #     point = Point(lon, lat)
 #     for _, row in gdf.iterrows():
