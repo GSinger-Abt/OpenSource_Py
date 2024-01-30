@@ -9,7 +9,7 @@ import re
 import geopandas as gpd
 
 # Load GeoJSON from a URL or a local file path
-url = 'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
+url = r'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
 # For a local file, replace the URL with the file path
 # e.g., 'path_to_your_file/us_states.geojson'
 
