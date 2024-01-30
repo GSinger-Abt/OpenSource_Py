@@ -7,6 +7,8 @@ import numpy as np
 import wikipediaapi
 import re
 import geopandas as gpd
+from shapely.geometry import Point
+
 
 # Load GeoJSON from a URL or a local file path
 url = r'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json'
