@@ -19,16 +19,13 @@ def inject_javascript():
     """
     return js
 
-def save_geojson_to_shapefile(geojson, filename='drawn_polygon.shp'):
+def save_geojson_to_shapefile(geojson, filename='drawn_polygon'):
     if geojson:
         geom = shape(geojson['geometry'])
         gdf = gpd.GeoDataFrame(index=[0], geometry=[geom], crs="EPSG:4326")
-        gdf.to_file(filename)
-        return filename
+        gdf.to_file(f"{filename}.shp")
+        return f"{filename}.shp"
     return None
-
-# Streamlit layout
-st.title('Draw a Polygon and Export as Shapefile')
 
 # Initialize the Folium map with specified width and height
 m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
@@ -39,23 +36,6 @@ draw.add_to(m)
 folium_static(m)
 st.markdown(inject_javascript(), unsafe_allow_html=True)
 
-# Handle the GeoJSON data when the button is clicked
-geojson_data = st.session_state.get("geojson", None)
-if st.button('Save Polygon'):
-    if geojson_data:
-        filename = save_geojson_to_shapefile(json.loads(geojson_data))
-        if filename:
-            with open(filename, 'rb') as file:
-                btn = st.download_button(
-                    label="Download Shapefile",
-                    data=file,
-                    file_name=filename,
-                    mime='application/zip'
-                )
-            # Clean up the generated shapefiles after serving them
-            for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg']:
-                os.remove(filename[:-4] + ext)
-
 # Listener for frontend events (the map drawing)
 st.components.v1.html("""<script>
     window.addEventListener('message', event => {
@@ -65,3 +45,26 @@ st.components.v1.html("""<script>
         }
     });
 </script>""", height=0, scrolling=False)
+
+# Button to save the drawn polygon
+if st.button('Save Polygon'):
+    geojson_data = st.session_state.get("geojson", None)
+    if geojson_data:
+        filename = save_geojson_to_shapefile(json.loads(geojson_data))
+        st.session_state['filename'] = filename  # Save the filename in the session state
+
+# Provide a download button only if the file has been created and stored in session state
+if 'filename' in st.session_state and st.session_state['filename'] is not None:
+    with open(st.session_state['filename'], 'rb') as file:
+        st.download_button(
+            label="Download Shapefile",
+            data=file,
+            file_name=os.path.basename(st.session_state['filename']),
+            mime='application/zip'
+        )
+
+# Ensure cleanup is managed correctly
+if 'filename' in st.session_state and st.session_state['filename'] is not None:
+    for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg']:
+        os.remove(st.session_state['filename'][:-4] + ext)
+    del st.session_state['filename']  # Remove the filename from session state after cleanup
