@@ -4,6 +4,7 @@ from streamlit_folium import folium_static
 import geopandas as gpd
 from shapely.geometry import shape
 import json
+import os
 
 def inject_javascript():
     js = """
@@ -18,19 +19,19 @@ def inject_javascript():
     """
     return js
 
-def save_geojson_to_shapefile(geojson):
+def save_geojson_to_shapefile(geojson, filename='drawn_polygon.shp'):
     if geojson:
         geom = shape(geojson['geometry'])
         gdf = gpd.GeoDataFrame(index=[0], geometry=[geom], crs="EPSG:4326")
-        gdf.to_file("drawn_polygon.shp")
-        return True
-    return False
+        gdf.to_file(filename)
+        return filename
+    return None
 
 # Streamlit layout
 st.title('Draw a Polygon and Export as Shapefile')
 
 # Initialize the Folium map with specified width and height
-m = folium.Map(location=[45.5236, -122.6750], zoom_start=13, width='100%', height='80vh')
+m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
 draw = folium.plugins.Draw(export=True)
 draw.add_to(m)
 
@@ -38,11 +39,22 @@ draw.add_to(m)
 folium_static(m)
 st.markdown(inject_javascript(), unsafe_allow_html=True)
 
-# Button to save the drawn polygon
-if st.button('Save Polygon', help='Click to save the drawn polygon as a shapefile'):
-    geojson_data = st.session_state.get("geojson", None)
-    if geojson_data and save_geojson_to_shapefile(json.loads(geojson_data)):
-        st.success("Shapefile saved!")
+# Handle the GeoJSON data when the button is clicked
+geojson_data = st.session_state.get("geojson", None)
+if st.button('Save Polygon'):
+    if geojson_data:
+        filename = save_geojson_to_shapefile(json.loads(geojson_data))
+        if filename:
+            with open(filename, 'rb') as file:
+                btn = st.download_button(
+                    label="Download Shapefile",
+                    data=file,
+                    file_name=filename,
+                    mime='application/zip'
+                )
+            # Clean up the generated shapefiles after serving them
+            for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg']:
+                os.remove(filename[:-4] + ext)
 
 # Listener for frontend events (the map drawing)
 st.components.v1.html("""<script>
