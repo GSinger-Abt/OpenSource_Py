@@ -30,7 +30,7 @@ def save_geojson_to_shapefile(geojson):
 st.title('Draw a Polygon and Export as Shapefile')
 
 # Initialize the Folium map:
-m = folium.Map(location=[45.5236, -122.6750], zoom_start=13)
+m = folium.Map(location=[45.5236, -122.6750], zoom_start=13, width='100%', height='80vh')  # Map taking larger area
 draw = folium.plugins.Draw(export=True)
 draw.add_to(m)
 
@@ -38,10 +38,29 @@ draw.add_to(m)
 folium_static(m)
 st.markdown(inject_javascript(), unsafe_allow_html=True)
 
-# Handle incoming GeoJSON data from the frontend
-geojson_data = st.session_state.get("geojson", None)
-if geojson_data and save_geojson_to_shapefile(json.loads(geojson_data)):
-    st.success("Shapefile saved!")
+# Custom CSS to make the button more visible
+st.markdown("""
+<style>
+.big-btn {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    background-color: blue;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin: 10px 0;
+}
+</style>
+<button class="big-btn" onclick="document.getElementById('btn-save').click()">Export Shapefile</button>
+""", unsafe_allow_html=True)
+
+# Save button
+if st.button('Save Polygon', key='btn-save', help='Click to save the drawn polygon as a shapefile'):
+    geojson_data = st.session_state.get("geojson", None)
+    if geojson_data and save_geojson_to_shapefile(json.loads(geojson_data)):
+        st.success("Shapefile saved!")
 
 # Listener for frontend events (the map drawing)
 st.components.v1.html("""<script>
