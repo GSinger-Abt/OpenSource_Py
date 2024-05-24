@@ -13,6 +13,7 @@ plotly-express
 wordcloud
 Wikipedia-API
 streamlit-folium
+streamlit-js-eval
 beautifulsoup4
 nltk
 pydeck
