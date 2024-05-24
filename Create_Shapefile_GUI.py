@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit.components.v1 import html
+from streamlit_js_eval import streamlit_js_eval
 
 # Define the HTML content
 html_content = """
@@ -36,41 +37,6 @@ html_content = """
             margin: 20px 0;
             color: #e0e0e0;
         }
-        .form-container {
-            background: #333;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 300px;
-            margin: 20px auto;
-            color: #e0e0e0;
-        }
-        .form-field {
-            margin-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        input {
-            width: calc(100% - 20px);
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }
-        button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            border: none;
-            background-color: #555;
-            color: #e0e0e0;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #777;
-        }
     </style>
 </head>
 <body>
@@ -78,32 +44,6 @@ html_content = """
         <h1>Reverse Geocode Sample</h1>
     </div>
     <div id="map"></div>
-    <div class="form-container">
-        <h2>Location Information</h2>
-        <form id="location-form">
-            <div class="form-field">
-                <label for="longitude">Longitude:</label>
-                <input type="text" id="longitude" name="longitude" readonly>
-            </div>
-            <div class="form-field">
-                <label for="latitude">Latitude:</label>
-                <input type="text" id="latitude" name="latitude" readonly>
-            </div>
-            <div class="form-field">
-                <label for="city">City:</label>
-                <input type="text" id="city" name="city" readonly>
-            </div>
-            <div class="form-field">
-                <label for="state">State:</label>
-                <input type="text" id="state" name="state" readonly>
-            </div>
-            <div class="form-field">
-                <label for="country">Country:</label>
-                <input type="text" id="country" name="country" readonly>
-            </div>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
     <script>
         const apiKey = "AAPK3f380629777b492f98ca73660d2b389eEfJGfm-x5DSEsz1W_tWvWvRgbWaOn1GxLdNQe8fvMsI3bRGHAlcpC-4d-Zvcqm6S";
 
@@ -146,11 +86,18 @@ html_content = """
             for (let i = data.results.length - 1; i >= 0; i--) {
                 marker = L.marker(data.results[i].latlng).addTo(map).bindPopup(data.results[i].text).openPopup();
                 
-                document.getElementById("longitude").value = data.results[i].latlng.lng.toFixed(6);
-                document.getElementById("latitude").value = data.results[i].latlng.lat.toFixed(6);
-                document.getElementById("city").value = data.results[i].properties.City || '';
-                document.getElementById("state").value = data.results[i].properties.Region || '';
-                document.getElementById("country").value = data.results[i].properties.CntryName || '';
+                const locationData = {
+                    longitude: data.results[i].latlng.lng.toFixed(6),
+                    latitude: data.results[i].latlng.lat.toFixed(6),
+                    city: data.results[i].properties.City || '',
+                    state: data.results[i].properties.Region || '',
+                    country: data.results[i].properties.CntryName || ''
+                };
+                const jsonData = JSON.stringify(locationData);
+                console.log(jsonData); // For debugging
+
+                // Pass the data back to Streamlit
+                parent.postMessage({ isStreamlitMessage: true, type: 'reverseGeocodeData', data: jsonData }, '*');
             }
         });
 
@@ -170,29 +117,20 @@ html_content = """
 
                 marker = L.marker(result.latlng).addTo(map).bindPopup(result.address.Match_addr).openPopup();
 
-                document.getElementById("longitude").value = result.latlng.lng.toFixed(6);
-                document.getElementById("latitude").value = result.latlng.lat.toFixed(6);
-                document.getElementById("city").value = result.address.City || '';
-                document.getElementById("state").value = result.address.Region || '';
-                document.getElementById("country").value = result.address.CntryName || '';
+                const locationData = {
+                    longitude: result.latlng.lng.toFixed(6),
+                    latitude: result.latlng.lat.toFixed(6),
+                    city: result.address.City || '',
+                    state: result.address.Region || '',
+                    country: result.address.CntryName || ''
+                };
+                const jsonData = JSON.stringify(locationData);
+                console.log(jsonData); // For debugging
+
+                // Pass the data back to Streamlit
+                parent.postMessage({ isStreamlitMessage: true, type: 'reverseGeocodeData', data: jsonData }, '*');
             });
         });
-
-        document.getElementById("location-form").onsubmit = function (event) {
-            event.preventDefault();
-            const data = {
-                longitude: document.getElementById("longitude").value,
-                latitude: document.getElementById("latitude").value,
-                city: document.getElementById("city").value,
-                state: document.getElementById("state").value,
-                country: document.getElementById("country").value
-            };
-            const jsonData = JSON.stringify(data);
-            console.log(jsonData); // For debugging
-
-            // Pass the data back to Streamlit
-            parent.postMessage({ isStreamlitMessage: true, type: 'reverseGeocodeData', data: jsonData }, '*');
-        };
     </script>
 </body>
 </html>
@@ -203,13 +141,40 @@ st.title("Reverse Geocode Sample")
 st.markdown("This is a reverse geocoding sample integrated with Streamlit.")
 result = html(html_content, height=700)
 
-# Define a placeholder for receiving data from HTML
-reverse_geocode_data = st.empty()
+# Define placeholders for displaying data
+longitude = st.text_input("Longitude", "")
+latitude = st.text_input("Latitude", "")
+city = st.text_input("City", "")
+state = st.text_input("State", "")
+country = st.text_input("Country", "")
 
 # JavaScript to handle messages from iframe
 js_code = """
 <script>
 window.addEventListener('message', (event) => {
+    if (event.data && event.data.isStreamlitMessage && event.data.type === 'reverseGeocodeData') {
+        const data = JSON.parse(event.data.data);
+        window.parent.postMessage({
+            isStreamlitMessage: true,
+            type: 'updateInputs',
+            data: data
+        }, '*');
+    }
+});
+</script>
+"""
+st.components.v1.html(js_code, height=0)
+
+# Use streamlit_js_eval to handle the communication
+location_data = streamlit_js_eval('document.getElementById("map").contentWindow.data', target="reverseGeocodeData")
+
+if location_data:
+    st.text_input("Longitude", location_data.get('longitude', ''))
+    st.text_input("Latitude", location_data.get('latitude', ''))
+    st.text_input("City", location_data.get('city', ''))
+    st.text_input("State", location_data.get('state', ''))
+    st.text_input("Country", location_data.get('country', ''))
+
    
 
 
