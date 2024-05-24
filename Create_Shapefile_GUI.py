@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit.components.v1 import html
-from streamlit_js_eval import streamlit_js_eval
 
 # Define the HTML content
 html_content = """
@@ -165,15 +164,25 @@ window.addEventListener('message', (event) => {
 """
 st.components.v1.html(js_code, height=0)
 
-# Use streamlit_js_eval to handle the communication
-location_data = streamlit_js_eval('document.getElementById("map").contentWindow.data', target="reverseGeocodeData")
+# Function to handle received data
+def handle_data(data):
+    st.session_state.longitude = data.get('longitude', '')
+    st.session_state.latitude = data.get('latitude', '')
+    st.session_state.city = data.get('city', '')
+    st.session_state.state = data.get('state', '')
+    st.session_state.country = data.get('country', '')
 
-if location_data:
-    st.text_input("Longitude", location_data.get('longitude', ''))
-    st.text_input("Latitude", location_data.get('latitude', ''))
-    st.text_input("City", location_data.get('city', ''))
-    st.text_input("State", location_data.get('state', ''))
-    st.text_input("Country", location_data.get('country', ''))
+# Check if data is received from the JavaScript
+if "reverseGeocodeData" in st.session_state:
+    handle_data(st.session_state.reverseGeocodeData)
+
+# Update the input fields with the received data
+st.text_input("Longitude", st.session_state.get("longitude", ""))
+st.text_input("Latitude", st.session_state.get("latitude", ""))
+st.text_input("City", st.session_state.get("city", ""))
+st.text_input("State", st.session_state.get("state", ""))
+st.text_input("Country", st.session_state.get("country", ""))
+
 
    
 
